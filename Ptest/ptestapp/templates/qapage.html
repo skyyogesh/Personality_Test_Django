@@ -1,0 +1,193 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Q&A Page</title>
+    <style>  
+      
+      .textcenter1  {
+        background-color: #b8eefc;
+        color: #eb2f71;
+        font-size: 25px;
+        font-style:normal ;
+        font-family: sans-serif;
+        font-weight: bold;
+        text-align: center;
+      }
+      .textcenter2  {
+        background-color: #b8eefc;
+        color: #eb2f71;
+        font-size: 20px;
+        font-style:normal ;
+        font-family: sans-serif;
+        font-weight: bold;
+        text-align: center;
+      }
+      #progress-bar {
+          margin-top: 3em;
+      }
+      #quest1 {
+        margin-top: 2em;
+        color: #eb2f71;
+        font-size: 20px;
+        font-style:normal ;
+        font-family: sans-serif;
+        font-weight: bold;
+
+      }
+      #quest2 {
+        margin-top: 2em;
+        font-size: 20px;
+        font-style:oblique ;
+        font-family: sans-serif;
+        font-weight: bold;
+      }
+      #quest3 {
+        text-align:left: 10;
+        margin-top: 1em;
+        font-size: 20px;
+        font-style:normal ;
+        font-family: sans-serif;
+      }
+      #button {
+        text-align:left: 10;
+        color: #eb2f71;
+        margin-top: 1em;
+        font-size: 20px;
+        font-style:normal ;
+        font-family: sans-serif;
+      }
+    </style>
+    <script type="text/javascript">
+
+      function updateProgress(progressBarElement, progressBarMessageElement, progress) {
+        progressBarElement.style.width = progress.percent + "%";
+        progressBarMessageElement.innerHTML = progress.current + ' of ' + progress.total + '% completed.';
+      }
+
+      function defaultvalue() {
+
+        {% for z in rqa %}
+            var sel_ans = {{ z.answer_number }}
+        {% endfor %}
+        const rbs = document.querySelectorAll('input[name="answer"]');
+        for (const rb of rbs) {
+          if(rb.value == sel_ans) {
+            rb.checked = true;
+            break
+          } 
+        }
+        
+      }
+
+      function progress() {
+        var bar = document.getElementById("progress-bar");
+        var barMessage = document.getElementById("progress-bar-message");
+        var curr_q = {{curr_q}}
+        document.getElementById("questionno").value = curr_q;
+        var total_q = {{total_q}}
+        var progress = (curr_q/total_q) * 100;
+        updateProgress(bar,barMessage,{
+                                        percent: progress,
+                                        current: progress,
+                                        total: 100
+                                      }
+                      )
+        
+      }
+
+      function f_validate(event) {
+        const rbs = document.querySelectorAll('input[name="answer"]');
+        let selectedValue=0;
+        for (const rb of rbs) {
+            if (rb.checked) {
+                selectedValue = rb.value;
+                break;
+            }
+        }
+        if ( selectedValue == "0"){
+          alert("Please choose any option");
+          event.preventDefault();
+          return false;
+        }
+      }
+    </script>
+</head>
+<body onload="progress();defaultvalue();noBack();">
+<table width=100%>
+<form action="." method="post">{% csrf_token %}
+<tr>
+    <td width="20%"> </td>
+  <td width="60%">
+    <div id="progress-wrapper">
+      <div id="progress-bar" style="background-color: #eb2f71; width: 0%;">&nbsp;</div>
+      <div id="progress-bar-message">Waiting for progress to start...</div>
+    </div>
+  </td>
+  <td width="20%"> </td>
+</tr>
+<tr>
+  <td width="20%"> </td>
+  <td>
+    <div id="quest1"> 
+       QUESTION {{curr_q}} OF {{total_q}}
+    </div>
+  </td>
+  <td width="20%"> </td>
+</tr>
+<tr>
+  <td width="20%"> </td>
+  <td>
+  <div id="quest2">
+    {% for x in aq %}
+
+      {{x.questions}}
+
+    {% endfor %}
+  </div>
+  </td>
+  <td width="20%"> </td>
+</tr>
+<tr>
+  <td width="20%"> </td>
+  <td> 
+      {% for y in qa %}
+      <div id="quest3" style = "position:relative; left:40px;">
+        <input type="radio" name="answer" id="answer" value='{{ y.answer_number }}'> {{ y.answers }}</input>
+      </div>
+      
+      {% endfor %}
+  </td>
+  <td width="20%"> </td>
+</tr>
+
+<tr>
+  <td width="20%"> <input type=hidden name="questionno" id="questionno"/> ></td>
+  <td>
+    <div id="button" style = "position:relative; left:0px;">
+       {% if curr_q > 1 %}
+        <input style = "background-color: #eb2f71;color: white " type=submit id="btn" name="btn" value='Previous'/> 
+       {% endif %}
+       {% if curr_q < total_q %}
+        <input style = "background-color: #eb2f71; color: white ; position:relative; left:10px;" id="btn" name="btn" type=submit onClick="f_validate(event);" value='Next'/> 
+       {% endif %}
+       {% if curr_q == total_q %}
+        <input style = "background-color: #eb2f71; color: white ; position:relative; left:10px;" id="btn" name="btn" type=submit onClick="f_validate(event);" value='Finish'/> 
+       {% endif %}
+    </div>
+  </td>
+  <td width="20%"> </td>
+</tr>
+</form>
+<script type="text/javascript">
+      window.history.forward();
+      function noBack()
+      {
+          window.history.forward();
+      }
+</script>
+</table>
+</body>
+</html>
